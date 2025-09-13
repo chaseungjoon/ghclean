@@ -4,21 +4,21 @@
 
 ---
 
-# Features
+## Features
 
- **Automatic cleanup** -  Unfollow users who don't follow you back
+ 1) **Automatic cleanup** -  Unfollow users who don't follow you back
 
- **Auto-follow** - Follow back users who follow you
+ 2) **Auto-follow** - Follow back users who follow you
 
- **Exceptions list** - Maintain a list of users you always want to follow
+ 3) **Exceptions list** - Maintain a list of users you always want to follow
  
- **Blacklist** - Maintain a list of users you never want to follow
-
- **Easy management** - Simple commands to view and manage your lists
+ 4) **Blacklist** - Maintain a list of users you never want to follow
 
 ---
 
-## Installation
+# How to Use
+
+## 1) Installation
 
 ### Via Homebrew (recommended)
 
@@ -36,7 +36,7 @@ brew install ghclean
 
 ---
 
-## Setup
+## 2) Setup
 
 Run the interactive setup to configure your GitHub credentials:
 
@@ -46,59 +46,61 @@ ghclean setup
 
 This will:
 
-- Install required Python dependencies
+- Install required Python dependencies (`requests`)
 - Prompt for your GitHub username
 - Prompt for your GitHub Personal Access Token (with `user:follow` permission)
 
-## Usage
+---
 
-### Run the cleanup
+## 3) Usage
 
-- `Follows` back my new followers (skips users in `blacklist`)
-- `Unfollows` who don't follow me back (skips users in `exceptions`)
+### 1. Run the cleanup
 
 ```bash
 ghclean run
 ```
 
-### Add usernames to `exceptions` (users you always want to follow)
+- `Follows` back my new followers (skips users in `blacklist`)
+- `Unfollows` who don't follow me back (skips users in `exceptions`)
+
+### 2. Add usernames to `exceptions` - users you always want to follow
 
 ```bash
 ghclean -e username1 username2 username3 ...
 ```
 
-### Add usernames to `blacklist` (users you never want to follow)
+### 3. Add usernames to `blacklist` - users you never want to follow
 
 ```bash
 ghclean -b spammer1 spammer2 spammer3 ...
 ```
 
-### View your current `exceptions`, `blacklist` lists
+### 4. View your current `exceptions`, `blacklist`
 
 ```bash
 ghclean view
 ```
 
-### Get help
+### 5. Get help
 
 ```bash
 ghclean -h
 ```
 
+---
+
 ## Requirements
 
-- Python 3.6+
-- `requests` library (automatically installed during setup)
+- Python 3.6+ (`requests` library)
 - GitHub Personal Access Token with `user:follow` permission
+
+---
 
 ## Configuration Files
 
 Configuration files are stored in `~/.config/ghclean/`:
 
-- `keys.txt`: Your GitHub username and token
+- `keys.txt`: Your GitHub username and personal access token
 - `exceptions.txt`: Users you always want to follow
 - `blacklist.txt`: Users you never want to follow
 
-## License
-
-MIT License - see LICENSE file for details.
