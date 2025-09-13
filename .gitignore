@@ -1,0 +1,14 @@
+.vscode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+.Python
+.DS_Store
+.AppleDouble
+.LSOverride
+*.log
