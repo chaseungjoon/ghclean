@@ -1,8 +1,8 @@
 class Ghclean < Formula
   desc "Command-line tool to automatically manage your GitHub followers and following lists"
-  homepage "https://github.com/USERNAME/ghclean"
-  url "https://github.com/USERNAME/ghclean/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "YOUR_SHA256_HERE"
+  homepage "https://github.com/chaseungjoon/ghclean"
+  url "https://github.com/chaseungjoon/ghclean/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "b901820efbb39b32fa56c3049194e4bb4177850cd1a519f8c2a956ba25259bf3"
   license "MIT"
 
   depends_on "python@3.12"
