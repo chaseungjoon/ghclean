@@ -18,19 +18,12 @@ def ensure_config_dir():
             p.touch()
 
 def read_keys():
-    """Return (username, token). Read env first, then keys file.
-       keys.txt can be either:
-         username=yourname
-         token=ghp_xxx
-       or two lines: first username, second token (fallback).
-    """
     username = os.getenv("GHCLEAN_USERNAME")
     token = os.getenv("GITHUB_TOKEN") or os.getenv("GHCLEAN_TOKEN")
 
     if KEYS_FILE.exists():
         with KEYS_FILE.open() as f:
             lines = [l.strip() for l in f if l.strip() and not l.strip().startswith("#")]
-        # key=value parsing
         for line in lines:
             if "=" in line:
                 k, v = line.split("=", 1)
@@ -40,7 +33,6 @@ def read_keys():
                     username = v
                 elif k in ("token", "github_token", "personal_access_token"):
                     token = v
-        # fallback: plain two-line file
         if (not username or not token) and len(lines) >= 2 and "=" not in lines[0]:
             username = username or lines[0]
             token = token or lines[1]
