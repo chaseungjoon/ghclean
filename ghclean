@@ -8,6 +8,7 @@ EXCEPTIONS_FILE="$CFG_DIR/exceptions.txt"
 BLACKLIST_FILE="$CFG_DIR/blacklist.txt"
 PYTHON_SCRIPT="$SCRIPT_DIR/githubapi.py"
 REQ_FILE="$SCRIPT_DIR/requirements.txt"
+PYTHON="${GHCLEAN_PYTHON:-python3}"
 
 ensure_cfg(){
   mkdir -p "$CFG_DIR"
@@ -64,7 +65,7 @@ case "${1:-}" in
       exit 1
     fi
     shift || true
-    python3 "$PYTHON_SCRIPT" "$@"
+    "$PYTHON" "$PYTHON_SCRIPT" "$@"
     ;;
   (view)
     ensure_cfg
@@ -114,17 +115,17 @@ case "${1:-}" in
     ensure_cfg
 
     echo "Checking Python dependencies..."
-    if command -v python3 >/dev/null 2>&1; then
-      if ! python3 -c "import requests" >/dev/null 2>&1; then
+    if command -v "$PYTHON" >/dev/null 2>&1; then
+      if ! "$PYTHON" -c "import requests" >/dev/null 2>&1; then
         echo "Installing dependencies from requirements.txt..."
-        if command -v pip3 >/dev/null 2>&1; then
+        if "$PYTHON" -m pip --version >/dev/null 2>&1; then
           if [ -f "$REQ_FILE" ]; then
-            pip3 install --user -r "$REQ_FILE"
+            "$PYTHON" -m pip install --user -r "$REQ_FILE"
           else
             echo "Warning: requirements.txt not found at $REQ_FILE"
           fi
         else
-          echo "pip3 not found. Please install Python3 and pip first."
+          echo "pip not found for $PYTHON. Please install Python 3 and pip first."
           exit 1
         fi
       else
