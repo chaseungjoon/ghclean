@@ -14,6 +14,8 @@
  
  4) **Blacklist** - Maintain a list of users you never want to follow
 
+ 5) **Auto mode** - Blacklist users who unfollowed you or can't be followed
+
 ---
 
 # How to Use
@@ -63,25 +65,42 @@ ghclean run
 - `Follows` back my new followers (skips users in `blacklist`)
 - `Unfollows` who don't follow me back (skips users in `exceptions`)
 
-### 2. Add usernames to `exceptions` - users you always want to follow
+### 2. Run the cleanup in `auto` mode
+
+```bash
+ghclean run --auto
+```
+
+- Runs `ghclean run` twice
+- Adds users I unfollowed to `blacklist`
+- Adds users who can't be followed to `blacklist` (they show up under `Following...` again on the second run)
+- Lists them under `Added to blacklist` at the end
+
+To use `auto` mode by default (`ghclean default manual` turns it off):
+
+```bash
+ghclean default auto
+```
+
+### 3. Add usernames to `exceptions` - users you always want to follow
 
 ```bash
 ghclean -e username1 username2 username3 ...
 ```
 
-### 3. Add usernames to `blacklist` - users you never want to follow
+### 4. Add usernames to `blacklist` - users you never want to follow
 
 ```bash
 ghclean -b spammer1 spammer2 spammer3 ...
 ```
 
-### 4. View your current `exceptions`, `blacklist`
+### 5. View your current `exceptions`, `blacklist`
 
 ```bash
 ghclean view
 ```
 
-### 5. Get help
+### 6. Get help
 
 ```bash
 ghclean -h
@@ -103,4 +122,5 @@ Configuration files are stored in `~/.config/ghclean/`:
 - `keys.txt`: Your GitHub username and personal access token
 - `exceptions.txt`: Users you always want to follow
 - `blacklist.txt`: Users you never want to follow
+- `default.txt`: Default mode for `ghclean run` (`auto` or `manual`)
 

@@ -54,12 +54,14 @@ if not my_username or not token:
 exceptions = read_list(EXCEPTIONS_FILE)
 blacklist = read_list(BLACKLIST_FILE)
 
+auto = "--auto" in sys.argv[1:]
+
 base_url = f'https://api.github.com/users/{my_username}/'
 headers = {"Authorization": f'token {token}'}
-follow = []
-unfollow = []
+api_error = False
 
 def get_all_users(endpoint):
+    global api_error
     users = []
     page = 1
     while True:
@@ -67,6 +69,7 @@ def get_all_users(endpoint):
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             print(f"API Error on {endpoint} page {page}!")
+            api_error = True
             break
         data = response.json()
         if not data:
@@ -82,6 +85,9 @@ def get_data():
     follower_usernames = [follower['login'] for follower in followers]
     following_usernames = [user['login'] for user in following]
 
+    follow = []
+    unfollow = []
+
     for name in following_usernames:
         if name not in follower_usernames and name not in exceptions:
             unfollow.append(name)
@@ -90,32 +96,84 @@ def get_data():
         if name not in following_usernames and name not in blacklist:
             follow.append(name)
 
-def main():
-    get_data()
+    return follow, unfollow
 
+def unfollow_users(users):
+    unfollowed = []
+    print("\n*** Unfollowing... ***\n")
+    for id in users:
+        unfollow_url = f"https://api.github.com/user/following/{id}"
+        unfollow_response = requests.delete(unfollow_url, headers=headers)
+        if unfollow_response.status_code == 204:
+            print(f"Unfollowed: {id}")
+            unfollowed.append(id)
+        else:
+            print(f"*** Failed to unfollow {id}, Status Code: {unfollow_response.status_code} ***")
+    return unfollowed
+
+def follow_users(users):
+    print("\n*** Following... ***\n")
+    for id in users:
+        follow_url = f"https://api.github.com/user/following/{id}"
+        follow_response = requests.put(follow_url, headers=headers)
+        if follow_response.status_code == 204:
+            print(f"Followed: {id}")
+        else:
+            print(f"*** Failed to follow {id}, Status Code: {follow_response.status_code} ***")
+
+def add_to_blacklist(users):
+    text = BLACKLIST_FILE.read_text()
+    with BLACKLIST_FILE.open("a") as f:
+        if text and not text.endswith("\n"):
+            f.write("\n")
+        for name in users:
+            if name not in blacklist:
+                f.write(f"{name}\n")
+                blacklist.append(name)
+
+def main():
+    follow, unfollow = get_data()
+
+    unfollowed = []
     if len(unfollow) > 0:
-        print("\n*** Unfollowing... ***\n")
-        for id in unfollow:
-            unfollow_url = f"https://api.github.com/user/following/{id}"
-            unfollow_response = requests.delete(unfollow_url, headers=headers)
-            if unfollow_response.status_code == 204:
-                print(f"Unfollowed: {id}")
-            else:
-                print(f"*** Failed to unfollow {id}, Status Code: {unfollow_response.status_code} ***")
+        unfollowed = unfollow_users(unfollow)
     else:
         print("\nNo one to unfollow!\n")
 
     if len(follow) > 0:
-        print("\n*** Following... ***\n")
-        for id in follow:
-            follow_url = f"https://api.github.com/user/following/{id}"
-            follow_response = requests.put(follow_url, headers=headers)
-            if follow_response.status_code == 204:
-                print(f"Followed: {id}")
-            else:
-                print(f"*** Failed to follow {id}, Status Code: {follow_response.status_code} ***")
+        follow_users(follow)
     else:
         print("\nNo one to follow!\n")
+
+    if not auto:
+        return
+
+    # Second run: anyone we just followed who still shows up can't be followed
+    follow_again, unfollow_again = get_data()
+    if api_error:
+        print("\n*** API error, skipped auto mode ***\n")
+        return
+
+    unfollowable = [name for name in follow_again if name in follow]
+    follow_again = [name for name in follow_again if name not in follow]
+
+    if len(unfollow_again) > 0:
+        unfollowed += unfollow_users(unfollow_again)
+    if len(follow_again) > 0:
+        follow_users(follow_again)
+
+    unfollowed = [name for name in unfollowed if name not in blacklist]
+    unfollowable = [name for name in unfollowable if name not in blacklist]
+
+    if len(unfollowed) + len(unfollowable) > 0:
+        print("\n*** Added to blacklist ***\n")
+        for id in unfollowed:
+            print(f"Blacklisted: {id} (unfollowed you)")
+        for id in unfollowable:
+            print(f"Blacklisted: {id} (can't be followed)")
+        add_to_blacklist(unfollowed + unfollowable)
+    else:
+        print("\nNo one to blacklist!\n")
 
 if __name__ == "__main__":
     main()

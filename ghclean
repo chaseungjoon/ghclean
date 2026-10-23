@@ -6,6 +6,7 @@ CFG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/ghclean"
 KEYS_FILE="$CFG_DIR/keys.txt"
 EXCEPTIONS_FILE="$CFG_DIR/exceptions.txt"
 BLACKLIST_FILE="$CFG_DIR/blacklist.txt"
+DEFAULT_FILE="$CFG_DIR/default.txt"
 PYTHON_SCRIPT="$SCRIPT_DIR/githubapi.py"
 REQ_FILE="$SCRIPT_DIR/requirements.txt"
 PYTHON="${GHCLEAN_PYTHON:-python3}"
@@ -34,8 +35,13 @@ show_help(){
 ghclean - manage GitHub follower/following cleanup
 
 Usage:
-  ghclean run
+  ghclean run [--auto]
     Run the Python cleanup (reads ~/.config/ghclean/* files).
+    --auto runs it twice, then blacklists users you unfollowed
+    and users who can't be followed.
+
+  ghclean default auto|manual
+    Make 'ghclean run' use --auto by default, or turn it back off.
 
   ghclean -e username1 username2 ...
     Add username(s) to exceptions (you will always follow them).
@@ -65,7 +71,23 @@ case "${1:-}" in
       exit 1
     fi
     shift || true
+    if [ "$(cat "$DEFAULT_FILE" 2>/dev/null)" = "auto" ]; then set -- "$@" --auto; fi
     "$PYTHON" "$PYTHON_SCRIPT" "$@"
+    ;;
+  (default)
+    case "${2:-}" in
+      (auto|manual)
+        ensure_cfg
+        echo "$2" > "$DEFAULT_FILE"
+        echo "Default mode set to $2"
+        ;;
+      (*)
+        current="$(cat "$DEFAULT_FILE" 2>/dev/null || true)"
+        echo "Current default mode: ${current:-manual}"
+        echo "Usage: ghclean default auto|manual"
+        [ -z "${2:-}" ] || exit 1
+        ;;
+    esac
     ;;
   (view)
     ensure_cfg
