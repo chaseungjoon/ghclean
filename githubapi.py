@@ -145,7 +145,8 @@ def main():
     else:
         print("\nNo one to follow!\n")
 
-    if not auto:
+    # Nothing changed on the first run, so a second run would find the same lists
+    if not auto or (len(follow) == 0 and len(unfollow) == 0):
         return
 
     # Second run: anyone we just followed who still shows up can't be followed
