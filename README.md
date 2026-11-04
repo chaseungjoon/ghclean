@@ -100,7 +100,19 @@ ghclean -b spammer1 spammer2 spammer3 ...
 ghclean view
 ```
 
-### 6. Get help
+### 6. Export `exceptions`, `blacklist`
+
+```bash
+ghclean export --exceptions   # exceptions only
+ghclean export --blacklist    # blacklist only
+ghclean export --all          # both
+```
+
+- Saves `ghclean-exceptions.txt` and/or `ghclean-blacklist.txt` to `~/Downloads`
+- Use `--path` to save them somewhere else: `ghclean export --all --path=/home/user/backup`
+- To use them on another computer, copy them to `~/.config/ghclean/` as `exceptions.txt` and `blacklist.txt`
+
+### 7. Get help
 
 ```bash
 ghclean -h

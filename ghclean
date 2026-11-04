@@ -52,6 +52,11 @@ Usage:
   ghclean view
     Show a prettified list of exceptions and blacklist usernames.
 
+  ghclean export --exceptions|--blacklist|--all [--path=DIR]
+    Save a copy of your exceptions and/or blacklist to DIR
+    (default: ~/Downloads) as ghclean-exceptions.txt and
+    ghclean-blacklist.txt.
+
   ghclean setup
     Interactive setup:
     - checks Python dependencies from requirements.txt
@@ -121,6 +126,49 @@ case "${1:-}" in
       fi
       echo ""
       ;;
+  (export)
+    shift || true
+    export_dir="$HOME/Downloads"
+    want_exceptions=0
+    want_blacklist=0
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        (--exceptions) want_exceptions=1 ;;
+        (--blacklist) want_blacklist=1 ;;
+        (--all) want_exceptions=1; want_blacklist=1 ;;
+        (--path=*) export_dir="${1#--path=}" ;;
+        (--path)
+          if [ $# -lt 2 ]; then echo "--path needs a directory."; exit 1; fi
+          export_dir="$2"; shift ;;
+        (*)
+          echo "Unknown option for export: $1"
+          echo "Usage: ghclean export --exceptions|--blacklist|--all [--path=DIR]"
+          exit 1 ;;
+      esac
+      shift
+    done
+    if [ "$want_exceptions" -eq 0 ] && [ "$want_blacklist" -eq 0 ]; then
+      echo "Choose what to export."
+      echo "Usage: ghclean export --exceptions|--blacklist|--all [--path=DIR]"
+      exit 1
+    fi
+    if [ -z "$export_dir" ]; then echo "--path needs a directory."; exit 1; fi
+    # The shell doesn't expand ~ in --path=~/dir, so do it here
+    case "$export_dir" in
+      ("~") export_dir="$HOME" ;;
+      ("~/"*) export_dir="$HOME/${export_dir#\~/}" ;;
+    esac
+    ensure_cfg
+    mkdir -p "$export_dir"
+    if [ "$want_exceptions" -eq 1 ]; then
+      cp "$EXCEPTIONS_FILE" "$export_dir/ghclean-exceptions.txt"
+      echo "Exported exceptions to $export_dir/ghclean-exceptions.txt"
+    fi
+    if [ "$want_blacklist" -eq 1 ]; then
+      cp "$BLACKLIST_FILE" "$export_dir/ghclean-blacklist.txt"
+      echo "Exported blacklist to $export_dir/ghclean-blacklist.txt"
+    fi
+    ;;
   (-e)
     shift || true
     if [ $# -eq 0 ]; then echo "No usernames provided."; exit 1; fi
