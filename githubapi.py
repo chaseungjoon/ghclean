@@ -145,23 +145,29 @@ def main():
     else:
         print("\nNo one to follow!\n")
 
-    # Nothing changed on the first run, so a second run would find the same lists
-    if not auto or (len(follow) == 0 and len(unfollow) == 0):
+    if not auto:
         return
 
-    # Second run: anyone we just followed who still shows up can't be followed
-    follow_again, unfollow_again = get_data()
-    if api_error:
+    # The second run only checks whether users we just followed show up again,
+    # so skip it if the first run followed no one
+    unfollowable = []
+    if len(follow) > 0:
+        # Second run: anyone we just followed who still shows up can't be followed
+        follow_again, unfollow_again = get_data()
+        if api_error:
+            print("\n*** API error, skipped auto mode ***\n")
+            return
+
+        unfollowable = [name for name in follow_again if name in follow]
+        follow_again = [name for name in follow_again if name not in follow]
+
+        if len(unfollow_again) > 0:
+            unfollowed += unfollow_users(unfollow_again)
+        if len(follow_again) > 0:
+            follow_users(follow_again)
+    elif api_error:
         print("\n*** API error, skipped auto mode ***\n")
         return
-
-    unfollowable = [name for name in follow_again if name in follow]
-    follow_again = [name for name in follow_again if name not in follow]
-
-    if len(unfollow_again) > 0:
-        unfollowed += unfollow_users(unfollow_again)
-    if len(follow_again) > 0:
-        follow_users(follow_again)
 
     unfollowed = [name for name in unfollowed if name not in blacklist]
     unfollowable = [name for name in unfollowable if name not in blacklist]

@@ -71,7 +71,7 @@ ghclean run
 ghclean run --auto
 ```
 
-- Runs `ghclean run` twice (only once if the first run has no one to follow or unfollow)
+- Runs `ghclean run` twice (only once if the first run has no one to follow)
 - Adds users I unfollowed to `blacklist`
 - Adds users who can't be followed to `blacklist` (they show up under `Following...` again on the second run)
 - Lists them under `Added to blacklist` at the end

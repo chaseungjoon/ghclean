@@ -37,8 +37,8 @@ ghclean - manage GitHub follower/following cleanup
 Usage:
   ghclean run [--auto]
     Run the Python cleanup (reads ~/.config/ghclean/* files).
-    --auto runs it twice, then blacklists users you unfollowed
-    and users who can't be followed.
+    --auto runs it twice (once if no one was followed), then blacklists
+    users you unfollowed and users who can't be followed.
 
   ghclean default auto|manual
     Make 'ghclean run' use --auto by default, or turn it back off.
